@@ -316,11 +316,57 @@ class FloatingClockSettings
 			prop.load(input);
 
 			// get the property value and print it out
-			backgroundColor = new Color( Integer.parseInt( prop.getProperty("Background") ), true);
-			foregroundColor = new Color( Integer.parseInt( prop.getProperty("Foreground") ), true);
-			distanceValue	= Integer.parseInt( prop.getProperty("Distance") );
-			opacityValue	= Integer.parseInt( prop.getProperty("Opacity") );
-			sizeValue	= Integer.parseInt( prop.getProperty("FontSize") );
+			
+			try
+			{
+				backgroundColor = new Color( Integer.parseInt( prop.getProperty("Background") ), true);
+			}
+			catch(NumberFormatException e)
+			{
+				System.out.println(e.toString());
+				backgroundColor = Color.BLACK;	
+			}
+
+			try
+			{
+				foregroundColor = new Color( Integer.parseInt( prop.getProperty("Foreground") ), true);
+			}
+			catch(NumberFormatException e)
+			{
+				System.out.println(e.toString());
+				foregroundColor = Color.WHITE;
+			}
+
+			try
+			{
+				distanceValue	= Integer.parseInt( prop.getProperty("Distance") );
+			}
+			catch(NumberFormatException e)
+			{
+				System.out.println(e.toString());
+				distanceValue = 0;
+			}
+
+			try
+			{
+				opacityValue	= Float.parseFloat( prop.getProperty("Opacity") ) / 100;
+			}
+			catch(NumberFormatException e)
+			{
+				System.out.println(e.toString());
+				opacityValue = 0.7f;
+			}
+
+			try
+			{
+				sizeValue	= Float.parseFloat( prop.getProperty("FontSize") );
+			}
+			catch(NumberFormatException e)
+			{
+				System.out.println(e.toString());
+				sizeValue = 15.0f;
+			}
+
 
 			//System.out.println("S: "+sizeValue); System.out.println("O: " + opacityValue); System.out.println("D: "+distanceValue);
 
