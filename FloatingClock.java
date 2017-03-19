@@ -1,4 +1,4 @@
-package clock;
+package FloatingClock;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;

@@ -1,4 +1,4 @@
-package clock;
+package FloatingClock;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
