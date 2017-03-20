@@ -1,4 +1,12 @@
-package FloatingClock;
+/*
+	Author: Tim Talbot.
+	Date  : 20 March 2017
+	
+	Feel free to use, modify or otherwise make use of this code in any way you wish,
+	I just ask that you keep this notice here and pull-request any cool changes back
+	to me. Thanks!
+
+*/package FloatingClock;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
