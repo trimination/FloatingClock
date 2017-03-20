@@ -1,9 +1,23 @@
 # FloatingClock
-Java Floating clock to sit in the corner of the screen above all other programs. 
-Will serve as my 2nd monitor clock although I'm yet to test it on a multi-screen system.
+Java Floating clock to sit in the corner of the screen above all other programs to display the current system time. 
 
-FloatingClock is A simple utility application written in Java that displays the current system time in the top right of the screen. 
-It provides light customisation such as opacity, color and font size. Only tested on Windows. Not tested on multi-screen system.
+FloatingClock is a simple utility application written in Java that displays the current system time in the top right of the screen. 
+It provides light customisation such as opacity, color and font size. Only tested on Windows 8.1. 
 
-Once compiled, run FloatingClock to launch. Alternatively, place all files in an executable jar and specify FloatingClock 
-as the main class.
+Currently floats in the corner of primary screen on multi-screen system, I may add settings to provide screen selection in the future.
+
+# Usage
+Navigate to directory above package in terminal (e.g. If package is at c:\FloatingClock, navigate to C:\)
+
+Compile all source in package from outside of package:
+
+javac FloatingClock/*.java
+
+then run main class:
+java FloatingClock/FloatingClock
+
+Alternatively, compile all source and then package into runnable jar:
+
+javac FloatingClock/*.java
+jar cvfeP FloatingClock.jar FloatingClock.FloatingClock -C . FloatingClock/
+
