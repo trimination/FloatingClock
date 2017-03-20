@@ -8,6 +8,7 @@
 
 */package FloatingClock;
 
+import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,6 +17,8 @@ import javax.swing.JSlider;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JCheckBox;
+import javax.swing.ButtonGroup;
+import javax.swing.JRadioButton;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 import java.awt.event.MouseAdapter;
@@ -40,10 +43,14 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsDevice;
 
 class FloatingClockSettings 
 {
 	FloatingClock clock;
+
+	String screenName = "";
 
 	final String configFileName = "FloatingClock.config";
 
@@ -54,6 +61,8 @@ class FloatingClockSettings
 	boolean isDraggable = false;
 
 	JFrame frame;
+	ButtonGroup deviceGroup = new ButtonGroup();
+	ArrayList<JRadioButton> deviceRadios = new ArrayList<JRadioButton>();
 	JDialog fgDialog, bgDialog;
 	JCheckBox isDraggableCheckbox;
 	GridLayout layout;
@@ -260,6 +269,28 @@ class FloatingClockSettings
 		pane.add(sizeSlider);
 		pane.add(isDraggableLabel);
 		pane.add(isDraggableCheckbox);
+
+		GraphicsEnvironment ge = GraphicsEnvironment.
+		getLocalGraphicsEnvironment();
+		GraphicsDevice[] gs = ge.getScreenDevices();
+
+		for (int j = 0; j < gs.length; j++) 
+		{ 
+			GraphicsDevice gd = gs[j];
+      			deviceRadios.add( new JRadioButton( gd.getIDstring() ) );
+			
+		}
+
+		for(JRadioButton rb : deviceRadios)
+		{
+			deviceGroup.add(rb);
+			pane.add(new JLabel(rb.getText()) );
+			if(rb.getText().equals(screenName)) rb.setSelected(true);
+			rb.setBackground(Color.darkGray);
+			rb.setForeground(Color.gray);
+			pane.add(rb);
+		}
+
                 layout.setVgap(40);
 		pane.add(saveButton);
 		pane.add(exitButton);
@@ -299,6 +330,17 @@ class FloatingClockSettings
 			prop.setProperty("Opacity", Integer.toString( opacitySlider.getValue() ) );
 			prop.setProperty("FontSize", Integer.toString( sizeSlider.getValue() ) );
 			prop.setProperty("isDraggable", Boolean.toString( isDraggableCheckbox.isSelected() ) );
+
+			// identify selected screen
+			for(JRadioButton rb : deviceRadios)
+			{
+				if(rb.isSelected())
+				{
+					screenName = rb.getText();
+				}
+			}
+
+			prop.setProperty("ScreenName", screenName);
 			// save properties to project root folder
 			prop.store(output, null);
 
@@ -397,6 +439,7 @@ class FloatingClockSettings
 				isDraggable = false;
 			}
 
+			screenName = prop.getProperty("ScreenName");
 			//System.out.println("S: "+sizeValue); System.out.println("O: " + opacityValue); System.out.println("D: "+distanceValue);
 
 		} 

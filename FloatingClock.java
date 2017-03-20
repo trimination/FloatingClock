@@ -47,12 +47,19 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.GraphicsEnvironment;
+import java.awt.GraphicsDevice;
+
 
 
 public class FloatingClock
 {
 
+	boolean debug = true;
+
 	int mouseX, mouseY;
+
+	String screenName="";
 
 	// context menu components
 	JPopupMenu menu;
@@ -185,8 +192,40 @@ public class FloatingClock
 		frame.pack();
 
 		// position window to top right of screen
+		boolean foundScreen = false;
+
 	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        	GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+		GraphicsDevice[] screenDevices = ge.getScreenDevices();
+		GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+
+		// more than one screen?
+		if(screenDevices.length > 1)
+		{
+			// which screen should i draw to ...
+
+			// if no screen name is specified in the settings, draw to default screen
+			if(screenName.equals(""))
+			{
+				screenName = defaultScreen.getIDstring();
+			}
+			else
+			{
+				// find settings-defined screen and set as default
+				for (int j = 0; j < screenDevices.length; j++) 
+				{ 
+					GraphicsDevice gd = screenDevices[j];
+				
+					if(gd.getIDstring().equals(screenName))
+					{
+						defaultScreen = gd;
+						foundScreen = true;
+						break;
+					}
+				}
+      
+			}
+		}
+
 	        Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
         	int x = (int) rect.getMaxX() - frame.getWidth();
 	        int y = distanceValue;
@@ -204,13 +243,6 @@ public class FloatingClock
 					menu.show(e.getComponent(), e.getX(), e.getY());
 
 				}
-				// RESIZE CODE
-				//GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-				//GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
-				//Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-				//int x = (int) rect.getMaxX() - frame.getWidth();
-				//int y = distanceValue;
-				//frame.setLocation(x, y);
 				
 			} // end mouseClicked
 		}); // end addMouseListener
@@ -292,8 +324,9 @@ public class FloatingClock
 			}
 			catch(NumberFormatException e)
 			{
-				System.out.println(e.toString());
+				if(debug) System.out.println(e.toString());
 				backgroundColor = Color.BLACK;	
+				System.out.println("Possible Config file corruption. Delete FloatingClock.config to resolve");
 			}
 
 			try
@@ -302,8 +335,9 @@ public class FloatingClock
 			}
 			catch(NumberFormatException e)
 			{
-				System.out.println(e.toString());
+				if(debug) System.out.println(e.toString());
 				foregroundColor = Color.WHITE;
+				System.out.println("Possible Config file corruption. Delete FloatingClock.config to resolve");
 			}
 
 			try
@@ -312,8 +346,9 @@ public class FloatingClock
 			}
 			catch(NumberFormatException e)
 			{
-				System.out.println(e.toString());
+				if(debug) System.out.println(e.toString());
 				distanceValue = 0;
+				System.out.println("Possible Config file corruption. Delete FloatingClock.config to resolve");
 			}
 
 			try
@@ -322,8 +357,9 @@ public class FloatingClock
 			}
 			catch(NumberFormatException e)
 			{
-				System.out.println(e.toString());
+				if(debug) System.out.println(e.toString());
 				opacityValue = 0.7f;
+				System.out.println("Possible Config file corruption. Delete FloatingClock.config to resolve");
 			}
 
 			try
@@ -332,8 +368,9 @@ public class FloatingClock
 			}
 			catch(NumberFormatException e)
 			{
-				System.out.println(e.toString());
+				if(debug) System.out.println(e.toString());
 				sizeValue = 15.0f;
+				System.out.println("Possible Config file corruption. Delete FloatingClock.config to resolve");
 			}
 
 			try
@@ -342,13 +379,19 @@ public class FloatingClock
 			}
 			catch(Exception e)
 			{
-				System.out.println(e.toString());
+				if(debug) System.out.println(e.toString());
 				isDraggable = false;
+				System.out.println("Possible Config file corruption. Delete FloatingClock.config to resolve");
 			}
+
+			
+			screenName = prop.getProperty("ScreenName");
+
 			//System.out.println("S: "+sizeValue); System.out.println("O: " + opacityValue); System.out.println("D: "+distanceValue);
 		} 
 		catch (IOException io) 
 		{
+			if(debug) io.printStackTrace();
 			// file doesn't exist, save then reload
 			saveSettings();
 			loadSettings();
@@ -364,7 +407,7 @@ public class FloatingClock
 				} 
 				catch (IOException io) 
 				{
-					io.printStackTrace();
+					if(debug) io.printStackTrace();
 				}
 			}
 		}
@@ -373,6 +416,7 @@ public class FloatingClock
 	// save default settings on first run in case stuff doesn't exist
 	private void saveSettings()
 	{
+		if(debug) System.out.println("saving settings..");
 		Properties prop = new Properties();
 		OutputStream output = null;
 
@@ -388,14 +432,16 @@ public class FloatingClock
 			prop.setProperty("Distance", Integer.toString( 0 ) );
 			prop.setProperty("Opacity", Integer.toString( 70 ) );
 			prop.setProperty("FontSize", Integer.toString( 15 ) );
-			//prop.setProperty("isDraggable", Boolean.toString (false) );
+			prop.setProperty("isDraggable", Boolean.toString (false) );
+			prop.setProperty("ScreenName", screenName);
 			// save properties to project root folder
 			prop.store(output, null);
 
+			if(debug) System.out.println("Settings saved");
 		} 
 		catch (IOException io) 
 		{
-			io.printStackTrace();
+			if(debug) io.printStackTrace();
 		} 
 		finally 
 		{
@@ -407,7 +453,7 @@ public class FloatingClock
 				} 
 				catch (IOException io) 
 				{
-					io.printStackTrace();
+					if(debug) io.printStackTrace();
 				}
 			}
 		}
