@@ -10,10 +10,15 @@ import java.awt.Rectangle;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JMenuItem;
 import java.awt.GraphicsEnvironment;
 import java.awt.GraphicsDevice;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Date;
@@ -28,10 +33,23 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
 
 public class FloatingClock
 {
 
+	int mouseX, mouseY;
+
+	// context menu components
+	JPopupMenu menu;
+	JMenuItem settingsMenuItem, exitMenuItem;
+	
+	boolean isDraggable = false;
+	
 	FloatingClock clock;
 	FloatingClockSettings settings;
 
@@ -86,8 +104,33 @@ public class FloatingClock
 		pane		= new MainContainer();
 		clockText 	= new JLabel("");
 
-		frame.setType(javax.swing.JFrame.Type.UTILITY);
+		// implement drag functionality
+		frame.addMouseListener(new MouseListener() {
 
+
+			public void mousePressed(MouseEvent e) 
+			{
+				mouseX = e.getX();
+				mouseY = e.getY();
+			}
+			public void mouseReleased(MouseEvent e) { }
+			public void mouseEntered(MouseEvent e) { }
+			public void mouseExited(MouseEvent e) { }
+			public void mouseClicked(MouseEvent e) { }
+		});
+
+		frame.addMouseMotionListener(new MouseMotionListener() {
+			public void mouseDragged(MouseEvent e)
+			{
+				if(isDraggable && SwingUtilities.isLeftMouseButton(e))
+				{
+					frame.setLocation(e.getXOnScreen()-mouseX,e.getYOnScreen()-mouseY);
+				}
+			}
+			public void mouseMoved(MouseEvent e) { }
+		});
+
+		frame.setType(javax.swing.JFrame.Type.UTILITY);
 		frame.setUndecorated(true);
 		frame.setAlwaysOnTop(true);
 		frame.setBackground(new Color(0, 0, 0, 0));
@@ -96,6 +139,37 @@ public class FloatingClock
 		// set clockText details based on settings or defaults
 		clockText.setForeground(foregroundColor);
 		clockText.setFont(clockText.getFont().deriveFont(sizeValue));
+
+		// prepare context menu
+		menu 			= new JPopupMenu();
+		settingsMenuItem 	= new JMenuItem("Settings");
+		exitMenuItem		= new JMenuItem("Exit");
+		
+		menu.add(settingsMenuItem);
+		menu.add(exitMenuItem);
+
+		settingsMenuItem.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e)
+			{
+				frame.dispose();
+				new FloatingClockSettings();
+			}
+
+
+		});
+
+		exitMenuItem.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e)
+			{
+				System.exit(0);
+			}
+
+
+		});
+		
+		// add components to container and add container to frame
 		pane.add(clockText);
 		frame.add(pane);
 		frame.pack();
@@ -109,6 +183,7 @@ public class FloatingClock
        		frame.setLocation(x, y);
 		frame.setVisible(true);
 	
+		
 		frame.addMouseListener(new MouseAdapter() 
 		{
 			public void mouseClicked(MouseEvent e)
@@ -116,19 +191,20 @@ public class FloatingClock
 				// if right-click, show the settings frame
 				if(SwingUtilities.isRightMouseButton(e))
 				{
-					frame.dispose();
-					new FloatingClockSettings();
+					menu.show(e.getComponent(), e.getX(), e.getY());
+
 				}
-				/* RESIZE CODE
-				GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-				GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
-				Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
-				int x = (int) rect.getMaxX() - frame.getWidth();
-				int y = distanceValue;
-				frame.setLocation(x, y);
-				*/
+				// RESIZE CODE
+				//GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+				//GraphicsDevice defaultScreen = ge.getDefaultScreenDevice();
+				//Rectangle rect = defaultScreen.getDefaultConfiguration().getBounds();
+				//int x = (int) rect.getMaxX() - frame.getWidth();
+				//int y = distanceValue;
+				//frame.setLocation(x, y);
+				
 			} // end mouseClicked
 		}); // end addMouseListener
+		
 
 	} // end initComponents() method
 
@@ -250,7 +326,15 @@ public class FloatingClock
 				sizeValue = 15.0f;
 			}
 
-
+			try
+			{
+				isDraggable = Boolean.parseBoolean( prop.getProperty("isDraggable") );
+			}
+			catch(Exception e)
+			{
+				System.out.println(e.toString());
+				isDraggable = false;
+			}
 			//System.out.println("S: "+sizeValue); System.out.println("O: " + opacityValue); System.out.println("D: "+distanceValue);
 		} 
 		catch (IOException io) 
@@ -294,7 +378,7 @@ public class FloatingClock
 			prop.setProperty("Distance", Integer.toString( 0 ) );
 			prop.setProperty("Opacity", Integer.toString( 70 ) );
 			prop.setProperty("FontSize", Integer.toString( 15 ) );
-
+			//prop.setProperty("isDraggable", Boolean.toString (false) );
 			// save properties to project root folder
 			prop.store(output, null);
 
@@ -318,5 +402,27 @@ public class FloatingClock
 			}
 		}
 	} // end saveSettings()
+
+	class MenuListener extends MouseAdapter 
+	{
+		public void MousePressed(MouseEvent e)
+		{
+			System.out.println("mouse pressed");
+		}
+
+		public void MouseReleased(MouseEvent e)
+		{
+			System.out.println("mouse released");
+			showMenu(e);
+		}
+
+		private void showMenu(MouseEvent e)
+		{
+			if(e.isPopupTrigger()) 
+			{
+				menu.show(e.getComponent(), e.getX(), e.getY());
+			}
+		}
+	}
 
 } // end FloatingClock class

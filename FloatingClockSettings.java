@@ -7,6 +7,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JSlider;
 import javax.swing.JButton;
 import javax.swing.JTextField;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.SwingUtilities;
 import java.awt.event.MouseAdapter;
@@ -40,10 +41,13 @@ class FloatingClockSettings
 
 	final int MAX_OPACITY=100, MIN_OPACITY=0, MAX_SIZE=40, MIN_SIZE=12;
 
-	int opacityValue=70, sizeValue=15, distanceValue=0;
+	int opacityValue=70, distanceValue=0, sizeValue = 15;
+
+	boolean isDraggable = false;
 
 	JFrame frame;
 	JDialog fgDialog, bgDialog;
+	JCheckBox isDraggableCheckbox;
 	GridLayout layout;
 	JPanel pane;
 	JTextField distanceFromTop;
@@ -52,7 +56,7 @@ class FloatingClockSettings
 	Color backgroundColor, foregroundColor;
 	JLabel  titleLabel, backgroundColorLabel, foregroundColorLabel,
 		backgroundColorExample, foregroundColorExample, 
-		distanceFromTopLabel, opacityLabel, sizeLabel;
+		distanceFromTopLabel, opacityLabel, sizeLabel, isDraggableLabel;
 
 	JColorChooser bgChooser, fgChooser;
 
@@ -168,6 +172,12 @@ class FloatingClockSettings
 		backgroundColorLabel	= new JLabel("Background Color: ");
 		foregroundColorLabel	= new JLabel("Foreground Color: ");
 
+		isDraggableLabel	= new JLabel("Is Draggable: ");
+
+		isDraggableCheckbox	= new JCheckBox();
+		isDraggableCheckbox.setBackground(Color.darkGray);
+		isDraggableCheckbox.setSelected(isDraggable);
+
 		backgroundColorExample	= new JLabel();
 		backgroundColorExample.setOpaque(true);
 		backgroundColorExample.setBorder(border);
@@ -240,6 +250,8 @@ class FloatingClockSettings
 		pane.add(opacitySlider);
 		pane.add(sizeLabel);
 		pane.add(sizeSlider);
+		pane.add(isDraggableLabel);
+		pane.add(isDraggableCheckbox);
                 layout.setVgap(40);
 		pane.add(saveButton);
 		pane.add(exitButton);
@@ -278,7 +290,7 @@ class FloatingClockSettings
 			prop.setProperty("Distance",  distanceVal );
 			prop.setProperty("Opacity", Integer.toString( opacitySlider.getValue() ) );
 			prop.setProperty("FontSize", Integer.toString( sizeSlider.getValue() ) );
-
+			prop.setProperty("isDraggable", Boolean.toString( isDraggableCheckbox.isSelected() ) );
 			// save properties to project root folder
 			prop.store(output, null);
 
@@ -349,24 +361,33 @@ class FloatingClockSettings
 
 			try
 			{
-				opacityValue	= Float.parseFloat( prop.getProperty("Opacity") ) / 100;
+				opacityValue	= Integer.parseInt( prop.getProperty("Opacity") );
 			}
 			catch(NumberFormatException e)
 			{
 				System.out.println(e.toString());
-				opacityValue = 0.7f;
+				opacityValue = 70;
 			}
 
 			try
 			{
-				sizeValue	= Float.parseFloat( prop.getProperty("FontSize") );
+				sizeValue	= Integer.parseInt( prop.getProperty("FontSize") );
 			}
 			catch(NumberFormatException e)
 			{
 				System.out.println(e.toString());
-				sizeValue = 15.0f;
+				sizeValue = 15;
 			}
 
+			try
+			{
+				isDraggable = Boolean.parseBoolean( prop.getProperty("isDraggable") );
+			}
+			catch(Exception e)
+			{
+				System.out.println(e.toString());
+				isDraggable = false;
+			}
 
 			//System.out.println("S: "+sizeValue); System.out.println("O: " + opacityValue); System.out.println("D: "+distanceValue);
 
