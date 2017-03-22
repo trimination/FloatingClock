@@ -79,10 +79,7 @@ class FloatingClockSettings
 
 	public FloatingClockSettings()
 	{
-		loadSettings();		
-		foregroundColor	= Color.BLACK;
-		backgroundColor	= Color.BLACK;
-
+		loadSettings();	
 		try 
 		{
 			// Set cross-platform Java L&F (also called "Metal")
