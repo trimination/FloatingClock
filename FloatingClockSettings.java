@@ -79,7 +79,18 @@ class FloatingClockSettings
 
 	public FloatingClockSettings()
 	{
-		loadSettings();	
+		loadSettings();
+		SwingUtilities.invokeLater(new Runnable() 
+		{
+			public void run() 
+			{
+				init();
+			}
+		});
+	}
+	public void init()
+	{
+			
 		try 
 		{
 			// Set cross-platform Java L&F (also called "Metal")

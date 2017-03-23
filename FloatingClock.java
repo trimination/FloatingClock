@@ -110,8 +110,16 @@ public class FloatingClock
 	{
 		clock = this;
 		loadSettings();
-		init();
-		new ClockTick().run();
+
+		SwingUtilities.invokeLater(new Runnable() 
+		{
+			public void run() 
+			{
+				init();
+				new ClockTick().run();
+			}
+		});
+
 	}
 
 	// initializes swing components and positions frame on users screen
